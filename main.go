@@ -51,7 +51,22 @@ func (m model) View() string {
 
 	selected := m.paint()
 
-	options := lipgloss.JoinHorizontal(lipgloss.Right, fmt.Sprint(colorPalette, " ", tips, "⟬ selected: ", selected.Render(), " ⟭ ⟬ clear    ", m.params.erase.Render(), "    ", m.params.move.Render(), " ", m.offset.x, "x", m.offset.y, " ⟭ ⟬ save (todo) ⟭"))
+	options := lipgloss.JoinHorizontal(
+		lipgloss.Center,
+		fmt.Sprint(colorPalette, " ",
+			tips,
+			"⟬ selected: ",
+			selected.Render(),
+			" ⟭ ⟬ clear    ",
+			m.params.erase.Render(),
+			"    ",
+			m.params.move.Render(),
+			" ",
+			m.offset.x,
+			"x",
+			m.offset.y,
+			" ⟭ ⟬ save (todo) ⟭",
+		))
 
 	screen := lipgloss.JoinVertical(
 		lipgloss.Left,
@@ -98,7 +113,10 @@ func (m *model) renderColorPalette() string {
 	colors := make([]lipgloss.Style, len(m.colors))
 
 	for i, color := range m.colors {
-		colors[i] = lipgloss.NewStyle().Width(2).Height(1).Background(lipgloss.Color(strconv.Itoa(color))).Align(lipgloss.Bottom)
+		colors[i] = lipgloss.NewStyle().
+			Width(2).
+			Height(1).
+			Background(lipgloss.Color(strconv.Itoa(color)))
 	}
 	var s string
 	for _, c := range colors {
