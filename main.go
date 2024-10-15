@@ -109,43 +109,29 @@ func (m *model) initialize() {
 }
 
 func (m *model) renderColorPalette() string {
-
-	colors := make([]lipgloss.Style, len(m.colors))
-
-	for i, color := range m.colors {
-		colors[i] = lipgloss.NewStyle().
+	var s string
+	for _, color := range m.colors {
+		s += lipgloss.NewStyle().
 			Width(2).
 			Height(1).
-			Background(lipgloss.Color(strconv.Itoa(color)))
-	}
-	var s string
-	for _, c := range colors {
-		s += c.Render()
+			Background(lipgloss.Color(strconv.Itoa(color))).Render()
 	}
 	return fmt.Sprint("⟬ colors: " + s + " ⟭")
 }
 
 func (m *model) renderTips() string {
-
-	tips := make([]lipgloss.Style, len(m.tips))
-
+	var s string
 	for i, tip := range m.tips {
 		if tip.char == " " {
 			// background
-			tips[i] = lipgloss.NewStyle().Width(1).Height(1).Background(lipgloss.Color(strconv.Itoa(m.params.color)))
+			s += lipgloss.NewStyle().Width(1).Height(1).Background(lipgloss.Color(strconv.Itoa(m.params.color))).Render(m.tips[i].char) + "  "
 
 		} else {
-			tips[i] = lipgloss.NewStyle().Width(1).Height(1).Foreground(lipgloss.Color(strconv.Itoa(m.params.color)))
+			s += lipgloss.NewStyle().Width(1).Height(1).Foreground(lipgloss.Color(strconv.Itoa(m.params.color))).Render(m.tips[i].char) + "  "
 		}
 
 	}
-
-	var s string
-	for i, t := range tips {
-		s += t.Render(m.tips[i].char) + "  "
-	}
 	return fmt.Sprint("⟬ tips: " + s + "⟭ ")
-
 }
 
 func (m *model) renderOutput() string {

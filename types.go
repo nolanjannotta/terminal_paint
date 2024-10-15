@@ -3,10 +3,8 @@ package main
 import "github.com/charmbracelet/lipgloss"
 
 type params struct {
-	tip   int
-	color int
-	move  lipgloss.Style
-	erase lipgloss.Style
+	tip, color  int
+	move, erase lipgloss.Style
 }
 
 type offset struct {

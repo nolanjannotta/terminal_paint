@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math"
 	"strconv"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -45,7 +46,7 @@ func (m *model) handleMouseEvent(msg tea.MouseMsg) {
 			return
 		}
 		// select colors
-		if msg.Y == m.height-1 && msg.X <= 39 && msg.X >= 10 {
+		if msg.Y == m.height-1 && isBetweenOrEqual(msg.X, 39, 10) {
 			minInput := 10
 			maxInput := 40
 			minOutput := 0 // pointless but for clarity
@@ -64,21 +65,21 @@ func (m *model) handleMouseEvent(msg tea.MouseMsg) {
 
 		}
 		// clear canvas
-		if msg.Y == m.height-1 && msg.X >= 95 && msg.X <= 99 {
+		if msg.Y == m.height-1 && isBetweenOrEqual(msg.X, 95, 99) {
 			m.pixelMap = make(map[[2]int]lipgloss.Style)
 			m.offset.x, m.offset.y = 0, 0
 
 		}
 		// erase
-		if msg.Y == m.height-1 && msg.X >= 104 && msg.X <= 108 {
+		if msg.Y == m.height-1 && isBetweenOrEqual(msg.X, 104, 108) {
 			state := m.params.erase.GetUnderline()
-			m.params.erase = m.params.erase.Underline(!state)
+			m.params.erase = m.params.erase.Underline(!state).Bold(!state)
 
 		}
 		// move
-		if msg.Y == m.height-1 && msg.X >= 113 && msg.X <= 116 {
+		if msg.Y == m.height-1 && isBetweenOrEqual(msg.X, 113, 116) {
 			state := m.params.move.GetUnderline()
-			m.params.move = m.params.move.Underline(!state)
+			m.params.move = m.params.move.Underline(!state).Bold(!state)
 
 		}
 
@@ -139,4 +140,9 @@ func (m *model) paint() lipgloss.Style {
 func (m *model) overlay(pixel [2]int) lipgloss.Style {
 	return m.pixelMap[pixel].SetString(m.tips[m.params.tip].char).Foreground(lipgloss.Color(strconv.Itoa(m.params.color)))
 
+}
+
+func isBetweenOrEqual(a, b, c int) bool {
+	// returns true if a is equal to or between b and c
+	return float64(a) <= math.Max(float64(b), float64(c)) && float64(a) >= math.Min(float64(b), float64(c))
 }
