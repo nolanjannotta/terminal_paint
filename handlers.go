@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"math"
+	"os"
 	"strconv"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -45,41 +47,68 @@ func (m *model) handleMouseEvent(msg tea.MouseMsg) {
 			m.pixelMap[pixel] = m.paint()
 			return
 		}
-		// select colors
-		if msg.Y == m.height-1 && isBetweenOrEqual(msg.X, 39, 10) {
-			minInput := 10
-			maxInput := 40
-			minOutput := 0 // pointless but for clarity
-			maxOutput := 15
-			m.params.color = (msg.X-minInput)*(maxOutput-minOutput)/(maxInput-minInput) + minOutput
 
-		}
-
-		// select tip
 		if msg.Y == m.height-1 {
+			// select colors
+			if isBetweenOrEqual(msg.X, 39, 10) {
+				minInput := 10
+				maxInput := 40
+				minOutput := 0 // pointless but for clarity
+				maxOutput := 15
+				m.params.color = (msg.X-minInput)*(maxOutput-minOutput)/(maxInput-minInput) + minOutput
+				m.params.move = m.params.move.Underline(false).Bold(false)
+				m.params.erase = m.params.erase.Underline(false).Bold(false)
+				return
+
+			}
+
+			// clear canvas
+			if isBetweenOrEqual(msg.X, 95, 99) {
+				m.pixelMap = make(map[[2]int]lipgloss.Style)
+				m.offset.x, m.offset.y = 0, 0
+				m.params.move = m.params.move.Underline(false).Bold(false)
+				m.params.erase = m.params.erase.Underline(false).Bold(false)
+				return
+
+			}
+			// erase
+			if isBetweenOrEqual(msg.X, 104, 108) {
+				state := m.params.erase.GetUnderline()
+				m.params.erase = m.params.erase.Underline(!state).Bold(!state)
+				m.params.move = m.params.move.Underline(false).Bold(false)
+				return
+
+			}
+			// move
+			if isBetweenOrEqual(msg.X, 113, 116) {
+				state := m.params.move.GetUnderline()
+				m.params.move = m.params.move.Underline(!state).Bold(!state)
+				m.params.erase = m.params.erase.Underline(false).Bold(false)
+				return
+
+			}
+
+			// this is ugly, but since the x,y offset coordinates can change on the screen, which will push the 'save' button to the right
+			// we need to make sure the x,y coordinates of 'save' button are lined up
+
+			xstr, ystr := strconv.Itoa(m.offset.x), strconv.Itoa(m.offset.y)
+			save := 126 + len(xstr) + len(ystr) - 2
+			// save
+			if isBetweenOrEqual(msg.X, save, save+3) {
+				// this doesnt actually save an image, only saves the output string in a text file
+				saveImage(m.renderOutput())
+				return
+
+			}
+
+			// if none of those if statements pass, we select a tip
 			for i, tip := range m.tips {
 				if msg.X == tip.x {
 					m.params.tip = i
 				}
 			}
-
-		}
-		// clear canvas
-		if msg.Y == m.height-1 && isBetweenOrEqual(msg.X, 95, 99) {
-			m.pixelMap = make(map[[2]int]lipgloss.Style)
-			m.offset.x, m.offset.y = 0, 0
-
-		}
-		// erase
-		if msg.Y == m.height-1 && isBetweenOrEqual(msg.X, 104, 108) {
-			state := m.params.erase.GetUnderline()
-			m.params.erase = m.params.erase.Underline(!state).Bold(!state)
-
-		}
-		// move
-		if msg.Y == m.height-1 && isBetweenOrEqual(msg.X, 113, 116) {
-			state := m.params.move.GetUnderline()
-			m.params.move = m.params.move.Underline(!state).Bold(!state)
+			m.params.move = m.params.move.Underline(false).Bold(false)
+			m.params.erase = m.params.erase.Underline(false).Bold(false)
 
 		}
 
@@ -145,4 +174,21 @@ func (m *model) overlay(pixel [2]int) lipgloss.Style {
 func isBetweenOrEqual(a, b, c int) bool {
 	// returns true if a is equal to or between b and c
 	return float64(a) <= math.Max(float64(b), float64(c)) && float64(a) >= math.Min(float64(b), float64(c))
+}
+
+func saveImage(img string) bool {
+	files, err := os.ReadDir("images")
+	if err != nil {
+		return false
+	}
+	newFile, err := os.Create(fmt.Sprint("images/", len(files)+1, ".txt"))
+
+	if err != nil {
+		return false
+	}
+	defer newFile.Close()
+
+	data := []byte(img)
+	_, err = newFile.Write(data)
+	return err == nil
 }

@@ -65,7 +65,7 @@ func (m model) View() string {
 			m.offset.x,
 			"x",
 			m.offset.y,
-			" ⟭ ⟬ save (todo) ⟭",
+			" ⟭ ⟬ save ⟭",
 		))
 
 	screen := lipgloss.JoinVertical(
@@ -124,10 +124,10 @@ func (m *model) renderTips() string {
 	for i, tip := range m.tips {
 		if tip.char == " " {
 			// background
-			s += lipgloss.NewStyle().Width(1).Height(1).Background(lipgloss.Color(strconv.Itoa(m.params.color))).Render(m.tips[i].char) + "  "
+			s += lipgloss.NewStyle().Width(1).Height(1).Background(lipgloss.Color("7")).Render() + "  "
 
 		} else {
-			s += lipgloss.NewStyle().Width(1).Height(1).Foreground(lipgloss.Color(strconv.Itoa(m.params.color))).Render(m.tips[i].char) + "  "
+			s += m.tips[i].char + "  "
 		}
 
 	}
@@ -143,9 +143,7 @@ func (m *model) renderOutput() string {
 
 		for x := 0; x < width; x++ {
 
-			pixel := [2]int{x, y}
-			pixel[0] += m.offset.x
-			pixel[1] += m.offset.y
+			pixel := [2]int{x + m.offset.x, y + m.offset.y}
 			if m.pixelMap[pixel].Value() == "" {
 				output += m.pixelMap[pixel].Render(" ")
 			} else {
