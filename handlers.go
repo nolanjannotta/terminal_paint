@@ -179,7 +179,11 @@ func isBetweenOrEqual(a, b, c int) bool {
 func saveImage(img string) bool {
 	files, err := os.ReadDir("images")
 	if err != nil {
-		return false
+		if err := os.Mkdir("images", 0755); err != nil {
+			return false
+		}
+		files, _ = os.ReadDir("images")
+
 	}
 	newFile, err := os.Create(fmt.Sprint("images/", len(files)+1, ".txt"))
 
