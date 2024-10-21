@@ -10,7 +10,7 @@ import (
 
 func (m *model) handleResize(msg tea.WindowSizeMsg) {
 	m.width, m.height = msg.Width, msg.Height
-	m.canvas = lipgloss.NewStyle().Width(msg.Width - 2).Height(msg.Height - 3).BorderStyle(lipgloss.RoundedBorder())
+	m.canvas = m.renderer.NewStyle().Width(msg.Width - 2).Height(msg.Height - 3).BorderStyle(lipgloss.RoundedBorder())
 
 }
 
@@ -25,7 +25,7 @@ func (m *model) handleMouseEvent(msg tea.MouseMsg) {
 			pixel := [2]int{msg.X + m.offset.x - 1, msg.Y + m.offset.y - 1}
 
 			if m.params.erase.GetUnderline() {
-				m.pixelMap[pixel] = lipgloss.NewStyle()
+				m.pixelMap[pixel] = m.renderer.NewStyle()
 				return
 			}
 
@@ -120,7 +120,7 @@ func (m *model) handleMouseEvent(msg tea.MouseMsg) {
 		if m.isDrawing {
 			pixel := [2]int{msg.X + m.offset.x - 1, msg.Y + m.offset.y - 1}
 			if m.params.erase.GetUnderline() {
-				m.pixelMap[pixel] = lipgloss.NewStyle()
+				m.pixelMap[pixel] = m.renderer.NewStyle()
 				return
 			}
 
@@ -159,9 +159,9 @@ func (m *model) handleKeypress(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 func (m *model) paint() lipgloss.Style {
 	if m.tips[m.params.tip].char == " " {
-		return lipgloss.NewStyle().Background(lipgloss.Color(strconv.Itoa(m.params.color))).SetString(" ")
+		return m.renderer.NewStyle().Background(lipgloss.Color(strconv.Itoa(m.params.color))).SetString(" ")
 	}
-	return lipgloss.NewStyle().Foreground(lipgloss.Color(strconv.Itoa(m.params.color))).SetString(m.tips[m.params.tip].char)
+	return m.renderer.NewStyle().Foreground(lipgloss.Color(strconv.Itoa(m.params.color))).SetString(m.tips[m.params.tip].char)
 
 }
 
