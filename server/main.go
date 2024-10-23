@@ -27,9 +27,14 @@ const (
 )
 
 func main() {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		panic(err)
+	}
+
 	s, err := wish.NewServer(
 		wish.WithAddress(net.JoinHostPort(host, port)),
-		wish.WithHostKeyPath(".ssh/id_ed25519"),
+		wish.WithHostKeyPath(fmt.Sprint(home, "/.ssh/personal-server")),
 		wish.WithMiddleware(
 			bubbletea.Middleware(teaHandler),
 			activeterm.Middleware(), // Bubble Tea apps usually require a PTY.
